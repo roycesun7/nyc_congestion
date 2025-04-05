@@ -1,5 +1,5 @@
 # Ignore CSV data files
-congestion.csv
+data/
 
 # Common Python
 __pycache__/

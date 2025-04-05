@@ -1,40 +1,54 @@
 // =====================================================================
-//  UI INITIALISATION
+//  UI INITIALIZATION
 // =====================================================================
 window.addEventListener("DOMContentLoaded", () => {
-    // Populate hour dropdown (0‑23)
-    const hourSel = document.getElementById("hour");
+    // Populate startHour and endHour dropdowns
+    const startHourSel = document.getElementById("startHour");
+    const endHourSel = document.getElementById("endHour");
+  
     for (let h = 0; h < 24; h++) {
-      const opt = document.createElement("option");
-      opt.value = h;
-      opt.textContent = `${h}:00`;
-      hourSel.appendChild(opt);
+      const label = `${h.toString().padStart(2, "0")}:00`;
+  
+      const opt1 = document.createElement("option");
+      opt1.value = h;
+      opt1.textContent = label;
+      startHourSel.appendChild(opt1);
+  
+      const opt2 = document.createElement("option");
+      opt2.value = h;
+      opt2.textContent = label;
+      endHourSel.appendChild(opt2);
     }
   
-    // Default date (optional)
-    document.getElementById("date").value = "2025-03-29";
+    // Set default date
+    document.getElementById("startDate").value = "2025-03-29";
+    document.getElementById("endDate").value = "2025-03-30";
   
-    // Auto‑load on page load
-    fetchHeatmaps();
-});
+    // Set up event listeners
+    document.getElementById("applyBtn").addEventListener("click", fetchHeatmap);
+    document.getElementById("nextBtn").addEventListener("click", advanceTime);
   
-// =====================================================================
-//  MAIN FETCH HANDLER: fetch data and render three heatmaps
-// =====================================================================
-async function fetchHeatmaps() {
-    const date      = document.getElementById("date").value;
-    const hour      = document.getElementById("hour").value;
-    const interval  = document.getElementById("interval").value;
-    const dataset   = document.getElementById("dataset").value;
+    // Initial load
+    fetchHeatmap();
+  });
   
-    console.log("📅 Selected filters:", { date, hour, interval, dataset });
+  // =====================================================================
+  //  MAIN FETCH HANDLER
+  // =====================================================================
+  async function fetchHeatmap() {
+    const startDate = document.getElementById("startDate").value;
+    const startHour = document.getElementById("startHour").value;
+    const interval = document.getElementById("interval").value;
+    const dataset = document.getElementById("dataset").value;
   
-    if (!date) { 
-      alert("Pick a date first"); 
-      return; 
+    console.log("📅 Selected filters:", { startDate, startHour, interval, dataset });
+  
+    if (!startDate) {
+      alert("Pick a date first");
+      return;
     }
   
-    const qs  = `?dataset=${dataset}&date=${date}&hour=${hour}&interval=${interval}`;
+    const qs = `?dataset=${dataset}&date=${startDate}&hour=${startHour}&interval=${interval}`;
     const url = "/callback/heatmap" + qs;
   
     try {
@@ -49,18 +63,49 @@ async function fetchHeatmaps() {
       const fig = await res.json();
       console.log("🌡️  Heatmap JSON:", fig);
   
-      // Draw the same heatmap into three separate containers
+      // Draw into all 3 heatmap divs
       drawPlot("heatmap1", fig);
       drawPlot("heatmap2", fig);
       drawPlot("heatmap3", fig);
   
-      document.getElementById("chartTitle").textContent = `Heatmaps – ${dataset}`;
-  
+      document.getElementById("chartTitle").textContent = `Heatmaps – ${dataset} on ${startDate} at ${startHour}:00`;
     } catch (err) {
       console.error("🔥 Fetch error:", err);
       alert("Failed to fetch data");
     }
-}
+  }
+  
+  // =====================================================================
+  //  NEXT BUTTON: Advance time by interval
+  // =====================================================================
+  function advanceTime() {
+    const startDateEl = document.getElementById("startDate");
+    const startHourEl = document.getElementById("startHour");
+    const intervalVal = document.getElementById("interval").value;
+  
+    let startDate = new Date(startDateEl.value);
+    let hour = startHourEl.value === "all" ? 0 : parseInt(startHourEl.value);
+    startDate.setHours(hour);
+  
+    // Add interval
+    let stepMinutes = 10;
+    if (intervalVal === "30min") stepMinutes = 30;
+    else if (intervalVal === "1h") stepMinutes = 60;
+  
+    startDate.setMinutes(startDate.getMinutes() + stepMinutes);
+  
+    // Update form inputs
+    const yyyy = startDate.getFullYear();
+    const mm = String(startDate.getMonth() + 1).padStart(2, "0");
+    const dd = String(startDate.getDate()).padStart(2, "0");
+    const hh = startDate.getHours();
+  
+    startDateEl.value = `${yyyy}-${mm}-${dd}`;
+    startHourEl.value = hh;
+  
+    // Re-fetch
+    fetchHeatmap();
+  }
   
 // =====================================================================
 //  PLOT HELPER
@@ -74,7 +119,3 @@ function drawPlot(divId, fig) {
     Plotly.newPlot(divId, fig.data, fig.layout || {}, { responsive: true });
 }
   
-// =====================================================================
-//  BUTTON HANDLER
-// =====================================================================
-document.getElementById("applyBtn").addEventListener("click", fetchHeatmaps);
