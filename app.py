@@ -1,52 +1,78 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import pandas as pd
-import json
-import plotly
 import plotly.express as px
-import yfinance as yf
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
-
-# Define the root route
 @app.route('/')
 def index():
-
     return render_template('index3.html')
 
-@app.route('/callback/<endpoint>')
-def cb(endpoint):   
-    if endpoint == "getStock":
-        return gm(request.args.get('data'),request.args.get('period'),request.args.get('interval'))
-    elif endpoint == "getInfo":
-        stock = request.args.get('data')
-        st = yf.Ticker(stock)
-        return json.dumps(st.info)
-    else:
-        return "Bad endpoint", 400
+@app.route('/callback/getStaticData')
+def get_static_data():
+    try:
+        # Read query params
+        date_str = request.args.get("date")         # e.g., "2025-04-04"
+        hour = int(request.args.get("hour", 0))     # e.g., 14
+        interval = int(request.args.get("interval", 60))  # in minutes
 
-# Return the JSON data for the Plotly graph
-def gm(stock,period, interval):
-    st = yf.Ticker(stock)
-  
-    # Create a line graph
-    df = st.history(period=(period), interval=interval)
-    df=df.reset_index()
-    df.columns = ['Date-Time']+list(df.columns[1:])
-    max = (df['Open'].max())
-    min = (df['Open'].min())
-    range = max - min
-    margin = range * 0.05
-    max = max + margin
-    min = min - margin
-    fig = px.area(df, x='Date-Time', y="Open",
-        hover_data=("Open","Close","Volume"), 
-        range_y=(min,max), template="seaborn" )
+        # Parse datetime bounds
+        start_dt = datetime.strptime(date_str, "%Y-%m-%d") + timedelta(hours=hour)
+        end_dt = start_dt + timedelta(minutes=interval)
 
+        # Load dataset
+        df = pd.read_csv("static_data.csv")  # adjust path as needed
 
-    # Create a JSON representation of the graph
-    graphJSON = fig.to_json() #json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return graphJSON
+        # Convert to datetime
+        df["timestamp"] = pd.to_datetime(df["timestamp"])
+
+        # Filter
+        mask = (df["timestamp"] >= start_dt) & (df["timestamp"] <= end_dt)
+        filtered = df.loc[mask].copy()
+
+        if filtered.empty:
+            return jsonify({"data": [], "layout": {"title": "No data in selected range"}})
+
+        # Create plot
+        fig = px.line(
+            filtered,
+            x="timestamp",
+            y="Open",  # or adjust to another column
+            title=f"Data from {start_dt.strftime('%Y-%m-%d %H:%M')} to {end_dt.strftime('%H:%M')}",
+            template="plotly_white",
+        )
+
+        return fig.to_json()
+
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+
+@app.route('/callback/heatmap')
+def heatmap():
+    return heatmap_graph()
+
+def heatmap_graph():
+    df_map = pd.DataFrame({
+        'lat': [40.7128, 40.730610],
+        'lon': [-74.0060, -73.935242],
+        'value': [1, 1]
+    })
+
+    fig = px.density_mapbox(
+        df_map,
+        lat='lat',
+        lon='lon',
+        z='value',
+        radius=30,
+        center={"lat": 40.7128, "lon": -74.0060},
+        zoom=10,
+        mapbox_style="open-street-map",
+        title="Heatmap of New York"
+    )
+
+    return fig.to_json()
 
 
 if __name__ == "__main__":
