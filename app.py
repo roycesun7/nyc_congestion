@@ -69,22 +69,21 @@ def heatmap():
     if df.empty:
         return jsonify({"data": [], "layout": {"title": "No data"}})
     
-    #HIIIII
-    grouped = df.groupby(["Latitude", "Longitude"]).size().reset_index(name="count")
-    counts_dict = grouped.to_dict(orient="records")
-    print("Counts dictionary:", counts_dict)
-    
+    grouped = df.groupby(["Latitude", "Longitude"])['CRZ Entries'].sum().reset_index(name="count")
     fig = px.density_mapbox(
-        df,
-        lat="Latitude",
-        lon="Longitude",
-        z=None,                 # or a weight column if present
-        radius=25,
-        center=dict(lat=40.7128, lon=-74.0060),
-        zoom=10,
-        mapbox_style="open-street-map",
-        title=f"{ds_key} – {date_str} {hour_str}"
+    grouped,          # use the grouped DataFrame
+    lat="Latitude",
+    lon="Longitude",
+    z="count",        # use the 'count' column as the weight
+    radius=25,
+    center=dict(lat=40.7128, lon=-74.0060),
+    zoom=10,
+    mapbox_style="open-street-map",
+    title=f"{ds_key} – {date_str} {hour_str}",
+    range_color=[0, 1500] 
     )
+
+    
     try:
         return fig.to_json()
         #return jsonify(fig.to_dict())

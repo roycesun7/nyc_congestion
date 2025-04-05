@@ -9,14 +9,14 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Animate.css for animations -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-  <!-- Plotly for charting (or consider Chart.js/D3.js for alternatives) -->
+  <!-- Plotly for charting -->
   <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
   <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body class="bg-gray-100 p-6">
   <div class="max-w-7xl mx-auto">
-    <!-- Title with animation -->
+    <!-- Title -->
     <h1 class="text-3xl font-bold mb-6 animate__animated animate__fadeInDown">Congestion Insights</h1>
     
     <!-- Filter Bar -->
@@ -32,7 +32,7 @@
         <label class="block text-gray-700 font-semibold mb-2">Hour</label>
         <select id="hour" class="w-full p-2 border rounded-md shadow-sm">
           <option value="all">All</option>
-          <!-- 0‑23 options added by JS -->
+          <!-- Options 0‑23 added by JS -->
         </select>
       </div>
       
@@ -67,14 +67,18 @@
       </button>
     </div>
     
-    <!-- Dashboard -->
+    <!-- Dashboard: Three Heatmaps Side by Side -->
     <div>
-      <h5 id="chartTitle" class="text-xl font-semibold mb-4">Heatmap</h5>
-      <div id="heatmap" class="border border-gray-300 rounded-md" style="height:500px;"></div>
+      <h5 id="chartTitle" class="text-xl font-semibold mb-4">Heatmaps</h5>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div id="heatmap1" class="border border-gray-300 rounded-md" style="height:500px;"></div>
+        <div id="heatmap2" class="border border-gray-300 rounded-md" style="height:500px;"></div>
+        <div id="heatmap3" class="border border-gray-300 rounded-md" style="height:500px;"></div>
+      </div>
     </div>
   </div>
 
-  <!-- Include app.js (ensure this file works with your new styling) -->
+  <!-- Include app.js (make sure this file works with your new styling) -->
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
