@@ -11,7 +11,7 @@ df = pd.read_csv("congestion.csv", parse_dates=["Toll Date", "Toll Hour", "Toll 
 def index():
     return render_template('index3.html')
 
-@app.route('/callback/getCongestionata')
+@app.route('/callback/getCongestionData')
 def get_static_data():
     try:
         # Read query params
@@ -24,9 +24,7 @@ def get_static_data():
         end_dt = start_dt + timedelta(minutes=interval)
 
         # Load dataset
-        df = pd.read_csv("static_data.csv")  # adjust path as needed
-
-        # Convert to datetime
+        df = pd.read_csv("congestion.csv", parse_dates=["Toll Date", "Toll Hour", "Toll 10 Minute Block"])
         df["timestamp"] = pd.to_datetime(df["timestamp"])
 
         # Filter
