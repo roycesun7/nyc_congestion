@@ -1,0 +1,23 @@
+# Ignore CSV data files
+congestion.csv
+
+# Common Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+.env
+
+# Flask / VS Code
+instance/
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
