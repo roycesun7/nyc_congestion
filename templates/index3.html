@@ -1,69 +1,80 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NYC Congestion Dashboard</title>
 
-  <!-- Bootstrap & Plotly -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Animate.css for animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <!-- Plotly for charting (or consider Chart.js/D3.js for alternatives) -->
   <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
-
-<body class="p-4">
-  <h1 class="mb-4">Congestion Insights</h1>
-
-  <!-- FILTER BAR ---------------------------------------------------------->
-  <div class="row g-3 mb-4">
-    <div class="col-md-3">
-      <label class="form-label fw-bold">Date</label>
-      <input type="date" id="date" class="form-control">
+<body class="bg-gray-100 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Title with animation -->
+    <h1 class="text-3xl font-bold mb-6 animate__animated animate__fadeInDown">Congestion Insights</h1>
+    
+    <!-- Filter Bar -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+      <!-- Date -->
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2">Date</label>
+        <input type="date" id="date" class="w-full p-2 border rounded-md shadow-sm">
+      </div>
+      
+      <!-- Hour -->
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2">Hour</label>
+        <select id="hour" class="w-full p-2 border rounded-md shadow-sm">
+          <option value="all">All</option>
+          <!-- 0‑23 options added by JS -->
+        </select>
+      </div>
+      
+      <!-- Interval -->
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2">Interval</label>
+        <select id="interval" class="w-full p-2 border rounded-md shadow-sm">
+          <option value="10min">10 min</option>
+          <option value="30min">30 min</option>
+          <option value="1h">1 hour</option>
+        </select>
+      </div>
+      
+      <!-- Dataset -->
+      <div class="md:col-span-2">
+        <label class="block text-gray-700 font-semibold mb-2">Dataset</label>
+        <select id="dataset" class="w-full p-2 border rounded-md shadow-sm">
+          <option value="congestion">Congestion</option>
+          <option value="collisions">Collisions</option>
+          <option value="complaints">Complaints</option>
+          <option value="construction">Construction</option>
+          <option value="air_quality">Air Quality</option>
+          <option value="citibike">Citibike</option>
+        </select>
+      </div>
     </div>
-
-    <div class="col-md-3">
-      <label class="form-label fw-bold">Hour</label>
-      <select id="hour" class="form-select">
-        <option value="all">All</option>
-      </select>
+    
+    <!-- Apply Button -->
+    <div class="mb-8">
+      <button id="applyBtn" class="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-700 transition duration-200">
+        <span class="material-icons align-middle mr-1">filter_alt</span> Apply Filter
+      </button>
     </div>
-
-    <div class="col-md-3">
-      <label class="form-label fw-bold">Interval</label>
-      <select id="interval" class="form-select">
-        <option value="10min">10 min</option>
-        <option value="30min">30 min</option>
-        <option value="1h">1 hour</option>
-      </select>
-    </div>
-
-    <div class="col-md-3 d-flex align-items-end">
-      <button id="applyBtn" class="btn btn-primary w-100">Apply Filter</button>
+    
+    <!-- Dashboard -->
+    <div>
+      <h5 id="chartTitle" class="text-xl font-semibold mb-4">Heatmap</h5>
+      <div id="heatmap" class="border border-gray-300 rounded-md" style="height:500px;"></div>
     </div>
   </div>
 
-  <!-- DASHBOARD ROWS ------------------------------------------------------>
-  <div class="row g-4">
-    <!-- Heatmap -->
-    <div class="col-12">
-      <h5>Heatmap of Vehicle Entries</h5>
-      <div id="heatmap" style="height:500px;border:1px solid #ccc;"></div>
-    </div>
-
-    <!-- Example extra chart -->
-    <div class="col-md-6">
-      <h5>placeholder</h5>
-      <div id="lineChart" style="height:350px;border:1px solid #ccc;"></div>
-    </div>
-
-    <div class="col-md-6">
-      <h5>placeholder</h5>
-      <div id="barChart" style="height:350px;border:1px solid #ccc;"></div>
-    </div>
-  </div>
-
-  <!-- JS -->
+  <!-- Include app.js (ensure this file works with your new styling) -->
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

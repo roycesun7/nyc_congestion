@@ -1,4 +1,6 @@
-// ----------------------  UI INITIALISATION  ------------------------------
+// =====================================================================
+//  UI INITIALISATION
+// =====================================================================
 window.addEventListener("DOMContentLoaded", () => {
     // populate hour dropdown (0‑23)
     const hourSel = document.getElementById("hour");
@@ -9,44 +11,43 @@ window.addEventListener("DOMContentLoaded", () => {
       hourSel.appendChild(opt);
     }
   
-    // auto‑load default data on first page load
-    fetchAll();
+    // default date (optional)
+    document.getElementById("date").value = "2025-03-29";
+  
+    // auto‑load once
+    fetchHeatmap();
   });
-  document.getElementById("date").value = "2025-03-29";
   
-  // ----------------------  MAIN FETCH HANDLER  ------------------------------
-  async function fetchAll() {
-    const date     = document.getElementById("date").value;
-    const hour     = document.getElementById("hour").value;
-    const interval = document.getElementById("interval").value;
+  // =====================================================================
+  //  MAIN FETCH HANDLER
+  // =====================================================================
+  async function fetchHeatmap() {
+    const date      = document.getElementById("date").value;
+    const hour      = document.getElementById("hour").value;
+    const interval  = document.getElementById("interval").value;
+    const dataset   = document.getElementById("dataset").value;   // new selector
   
-    // 🔍  LOG selected filter values
-    console.log("📅 Selected filters:", { date, hour, interval });
+    console.log("📅 Selected filters:", { date, hour, interval, dataset });
   
-    if (!date) {
-      alert("Pick a date first"); 
-      return;
-    }
+    if (!date) { alert("Pick a date first"); return; }
   
-    // build common query‑string
-    const qs = `?date=${date}&hour=${hour}&interval=${interval}`;
+    const qs  = `?dataset=${dataset}&date=${date}&hour=${hour}&interval=${interval}`;
+    const url = "/callback/heatmap" + qs;
   
     try {
-      // run API calls in parallel
-      const [heatRes, lineRes] = await Promise.all([
-        fetch("/callback/getFiltered"   + qs),
-        fetch("/callback/getCongestionData" + qs)
-      ]);
+      const res  = await fetch(url);
+      if (!res.ok) {
+        const txt = await res.text();
+        console.error("Server error", res.status, txt.slice(0, 200));
+        alert("Server error " + res.status);
+        return;
+      }
   
-      const heatJSON = await heatRes.text();
-      const lineJSON = await lineRes.text();
+      const fig = await res.json();
+      console.log("🌡️  Heatmap JSON:", fig);
   
-      // 🔍  LOG raw JSON returned
-      console.log("🌡️  Heatmap JSON:", heatJSON.slice(0, 200) + "…");
-      console.log("📈  Line JSON:",    lineJSON.slice(0, 200)  + "…");
-  
-      drawPlot("heatmap",  JSON.parse(heatJSON));
-      drawPlot("lineChart", JSON.parse(lineJSON));
+      drawPlot("heatmap", fig);
+      document.getElementById("chartTitle").textContent = `Heatmap – ${dataset}`;
   
     } catch (err) {
       console.error("🔥 Fetch error:", err);
@@ -54,15 +55,20 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
   
-  // ----------------------  PLOT HELPER  -------------------------------------
+  // =====================================================================
+  //  PLOT HELPER
+  // =====================================================================
   function drawPlot(divId, fig) {
+    const div = document.getElementById(divId);
     if (!fig.data || fig.data.length === 0) {
-      document.getElementById(divId).innerHTML = "<p class='text-muted'>No data for this range.</p>";
+      div.innerHTML = "<p class='text-muted'>No data for this range.</p>";
       return;
     }
-    Plotly.newPlot(divId, fig.data, fig.layout || {}, {responsive:true});
+    Plotly.newPlot(divId, fig.data, fig.layout || {}, { responsive: true });
   }
   
-  // ----------------------  BUTTON HANDLER  ----------------------------------
-  document.getElementById("applyBtn").addEventListener("click", fetchAll);
+  // =====================================================================
+  //  BUTTON HANDLER
+  // =====================================================================
+  document.getElementById("applyBtn").addEventListener("click", fetchHeatmap);
   
