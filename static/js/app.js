@@ -24,11 +24,23 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("startDate").value = "2025-03-29";
     document.getElementById("endDate").value = "2025-03-30";
   
+    // Set default datasets for individual heatmaps
+    if (document.getElementById("dataset1")) {
+      document.getElementById("dataset1").value = "congestion";
+      document.getElementById("dataset2").value = "collisions";
+      document.getElementById("dataset3").value = "complaints";
+    }
+  
     // Initialize the current timestamp using Start Date and Start Hour
     resetCurrentTimestamp();
   
     // Auto‑load on page load
     fetchHeatmaps();
+  
+    // Add event listeners for dataset dropdowns to refresh the corresponding heatmap
+    document.getElementById("dataset1").addEventListener("change", fetchHeatmaps);
+    document.getElementById("dataset2").addEventListener("change", fetchHeatmaps);
+    document.getElementById("dataset3").addEventListener("change", fetchHeatmaps);
 });
   
 // =====================================================================
@@ -61,7 +73,11 @@ async function fetchHeatmaps() {
       return;
     }
   
-    const dataset   = document.getElementById("dataset").value;
+    const datasets = [
+      document.getElementById("dataset1").value,
+      document.getElementById("dataset2").value,
+      document.getElementById("dataset3").value
+    ];
     const interval  = document.getElementById("interval").value;
     const endDate   = document.getElementById("endDate").value;
     const endHour   = document.getElementById("endHour").value;
@@ -72,36 +88,37 @@ async function fetchHeatmaps() {
     const currentMinutes = currentTimestamp.getMinutes();
     const timeStr = `${currentHour}:${currentMinutes.toString().padStart(2, "0")}`;
   
-    console.log("📅 Current time:", { currentDate, currentHour, currentMinutes, dataset, interval });
+    console.log("📅 Current time:", { currentDate, currentHour, currentMinutes, datasets, interval });
   
-    // Build query string using currentTimestamp (including minute parameter)
-    const qs  = `?dataset=${dataset}&date=${currentDate}&hour=${currentHour}&minute=${currentMinutes}&endDate=${endDate}&endHour=${endHour}&interval=${interval}`;
-    const url = "/callback/heatmap" + qs;
-  
-    try {
-      const res = await fetch(url);
-      if (!res.ok) {
-        const txt = await res.text();
-        console.error("Server error", res.status, txt.slice(0, 200));
-        alert("Server error " + res.status);
-        return;
+    // Fetch and render each heatmap separately
+    for (let i = 0; i < 3; i++) {
+      const dataset = datasets[i];
+      // Build query string using currentTimestamp (including minute parameter)
+      const qs = `?dataset=${dataset}&date=${currentDate}&hour=${currentHour}&minute=${currentMinutes}&endDate=${endDate}&endHour=${endHour}&interval=${interval}`;
+      const url = "/callback/heatmap" + qs;
+    
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          const txt = await res.text();
+          console.error("Server error", res.status, txt.slice(0, 200));
+          alert(`Server error ${res.status} for heatmap ${i+1}`);
+          continue;
+        }
+    
+        const fig = await res.json();
+        console.log(`🌡️  Heatmap ${i+1} JSON:`, fig);
+    
+        // Draw the heatmap into its container
+        drawPlot(`heatmap${i+1}`, fig);
+      } catch (err) {
+        console.error(`🔥 Fetch error for heatmap ${i+1}:`, err);
+        alert(`Failed to fetch data for heatmap ${i+1}`);
       }
-  
-      const fig = await res.json();
-      console.log("🌡️  Heatmap JSON:", fig);
-  
-      // Draw the same heatmap into three separate containers
-      drawPlot("heatmap1", fig);
-      drawPlot("heatmap2", fig);
-      drawPlot("heatmap3", fig);
-  
-      // Update the chart title with the full time (including minutes)
-      document.getElementById("chartTitle").textContent = `Heatmaps – ${dataset} on ${currentDate} at ${timeStr}`;
-  
-    } catch (err) {
-      console.error("🔥 Fetch error:", err);
-      alert("Failed to fetch data");
     }
+  
+    // Update the chart title with the full time (including minutes)
+    document.getElementById("chartTitle").textContent = `Heatmaps – ${currentDate} at ${timeStr}`;
 }
   
 // =====================================================================

@@ -13,94 +13,364 @@
   <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
   <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <style>
+    /* Shadcn inspired styles */
+    :root {
+      --background: 210 40% 98%;
+      --foreground: 222.2 84% 4.9%;
+      --card: 0 0% 100%;
+      --card-foreground: 222.2 84% 4.9%;
+      --popover: 0 0% 100%;
+      --popover-foreground: 222.2 84% 4.9%;
+      --primary: 221 83% 53%;      /* blue-600 */
+      --primary-foreground: 0 0% 100%;
+      --secondary: 142 76% 36%;    /* green-600 */
+      --secondary-foreground: 0 0% 100%;
+      --muted: 210 40% 96.1%;
+      --muted-foreground: 215.4 16.3% 46.9%;
+      --accent: 210 40% 96.1%;
+      --accent-foreground: 222.2 47.4% 11.2%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 210 40% 98%;
+      --border: 214.3 31.8% 91.4%;
+      --input: 214.3 31.8% 91.4%;
+      --ring: 221 83% 53%;
+      --radius: 0.5rem;
+    }
+    
+    .dark {
+      --background: 222.2 84% 4.9%;
+      --foreground: 210 40% 98%;
+      --card: 222.2 84% 4.9%;
+      --card-foreground: 210 40% 98%;
+      --popover: 222.2 84% 4.9%;
+      --popover-foreground: 210 40% 98%;
+      --primary: 217.2 91.2% 59.8%;
+      --primary-foreground: 222.2 47.4% 11.2%;
+      --secondary: 143 70.5% 40.2%;
+      --secondary-foreground: 210 40% 98%;
+      --muted: 217.2 32.6% 17.5%;
+      --muted-foreground: 215 20.2% 65.1%;
+      --accent: 217.2 32.6% 17.5%;
+      --accent-foreground: 210 40% 98%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 210 40% 98%;
+      --border: 217.2 32.6% 17.5%;
+      --input: 217.2 32.6% 17.5%;
+      --ring: 224.3 76.3% 48%;
+    }
+    
+    body {
+      background-color: hsl(var(--background));
+      color: hsl(var(--foreground));
+    }
+    
+    .input-shadcn {
+      height: 2.5rem;
+      width: 100%;
+      border-radius: var(--radius);
+      border: 1px solid hsl(var(--input));
+      background: transparent;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      transition-property: color, background-color, border-color;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+    }
+    
+    .input-shadcn:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px hsl(var(--ring) / 0.3);
+      border-color: hsl(var(--ring));
+    }
+    
+    .select-shadcn {
+      height: 2.5rem;
+      width: 100%;
+      border-radius: var(--radius);
+      border: 1px solid hsl(var(--input));
+      background: transparent;
+      padding: 0 0.75rem;
+      font-size: 0.875rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      transition-property: color, background-color, border-color;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+    }
+    
+    .select-shadcn:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px hsl(var(--ring) / 0.3);
+      border-color: hsl(var(--ring));
+    }
+    
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      height: 2.5rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      background-color: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      transition-property: color, background-color, border-color;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+    }
+    
+    .btn-primary:hover {
+      background-color: hsl(var(--primary) / 0.9);
+    }
+    
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      height: 2.5rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      background-color: hsl(var(--secondary));
+      color: hsl(var(--secondary-foreground));
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      transition-property: color, background-color, border-color;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+    }
+    
+    .btn-secondary:hover {
+      background-color: hsl(var(--secondary) / 0.9);
+    }
+    
+    .card-shadcn {
+      border-radius: calc(var(--radius) + 0.25rem);
+      border: 1px solid hsl(var(--border));
+      background-color: hsl(var(--card));
+      color: hsl(var(--card-foreground));
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+    
+    .card-header {
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1.5rem 0;
+    }
+    
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    
+    .card-description {
+      color: hsl(var(--muted-foreground));
+      font-size: 0.875rem;
+    }
+    
+    .card-content {
+      padding: 1.5rem;
+    }
+    
+    .card-footer {
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem 1.5rem;
+    }
+    
+    /* Dark mode toggle styles */
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 50;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 9999px;
+      background-color: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
-<body class="bg-gray-100 p-6">
-  <div class="max-w-7xl mx-auto">
+<body class="min-h-screen">
+  <!-- Dark mode toggle -->
+  <button id="themeToggle" class="theme-toggle">
+    <span class="material-icons">dark_mode</span>
+  </button>
+
+  <div class="container px-4 mx-auto py-8">
     <!-- Title -->
-    <h1 class="text-3xl font-bold mb-6 animate__animated animate__fadeInDown">Congestion Insights</h1>
-    
-    <!-- Filter Bar: 6 Fields -->
-    <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
-      <!-- Start Date -->
-      <div>
-        <label class="block text-gray-700 font-semibold mb-2">Start Date</label>
-        <input type="date" id="startDate" class="w-full p-2 border rounded-md shadow-sm">
-      </div>
-      
-      <!-- Start Hour -->
-      <div>
-        <label class="block text-gray-700 font-semibold mb-2">Start Hour</label>
-        <select id="startHour" class="w-full p-2 border rounded-md shadow-sm">
-          <option value="all">All</option>
-          <!-- Options (0‑23) added by JS -->
-        </select>
-      </div>
-      
-      <!-- End Date -->
-      <div>
-        <label class="block text-gray-700 font-semibold mb-2">End Date</label>
-        <input type="date" id="endDate" class="w-full p-2 border rounded-md shadow-sm">
-      </div>
-      
-      <!-- End Hour -->
-      <div>
-        <label class="block text-gray-700 font-semibold mb-2">End Hour</label>
-        <select id="endHour" class="w-full p-2 border rounded-md shadow-sm">
-          <option value="all">All</option>
-          <!-- Options (0‑23) added by JS -->
-        </select>
-      </div>
-      
-      <!-- Interval -->
-      <div>
-        <label class="block text-gray-700 font-semibold mb-2">Interval</label>
-        <select id="interval" class="w-full p-2 border rounded-md shadow-sm">
-          <option value="10min">10 min</option>
-          <option value="30min">30 min</option>
-          <option value="1h">1 hour</option>
-        </select>
-      </div>
-      
-      <!-- Dataset -->
-      <div>
-        <label class="block text-gray-700 font-semibold mb-2">Dataset</label>
-        <select id="dataset" class="w-full p-2 border rounded-md shadow-sm">
-          <option value="congestion">Congestion</option>
-          <option value="collisions">Collisions</option>
-          <option value="complaints">Complaints</option>
-          <option value="construction">Construction</option>
-          <option value="air_quality">Air Quality</option>
-          <option value="citibike">Citibike</option>
-        </select>
-      </div>
+    <div class="mb-8 animate__animated animate__fadeInDown">
+      <h1 class="text-4xl font-bold tracking-tight">NYC Congestion Insights</h1>
+      <p class="text-muted-foreground mt-2">Interactive visualization of traffic and urban data</p>
     </div>
     
-    <!-- Apply Filter Button (Resets to start time) -->
-    <div class="mb-4">
-      <button id="applyBtn" class="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-700 transition duration-200">
-        <span class="material-icons align-middle mr-1">filter_alt</span> Apply Filter
-      </button>
-    </div>
-    
-    <!-- Next Button: Advances the current time by the chosen interval -->
-    <div class="mb-8">
-      <button id="nextBtn" class="w-full md:w-auto bg-green-600 text-white px-4 py-2 rounded-md shadow hover:bg-green-700 transition duration-200">
-        <span class="material-icons align-middle mr-1">arrow_forward</span> Next
-      </button>
-    </div>
-    
-    <!-- Dashboard: Three Heatmaps Side by Side -->
-    <div>
-      <h5 id="chartTitle" class="text-xl font-semibold mb-4">Heatmaps</h5>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div id="heatmap1" class="border border-gray-300 rounded-md" style="height:500px;"></div>
-        <div id="heatmap2" class="border border-gray-300 rounded-md" style="height:500px;"></div>
-        <div id="heatmap3" class="border border-gray-300 rounded-md" style="height:500px;"></div>
+    <!-- Main content -->
+    <div class="grid grid-cols-1 gap-6">
+      <!-- Filter Card -->
+      <div class="card-shadcn animate__animated animate__fadeIn">
+        <div class="card-header">
+          <h2 class="card-title">Data Filters</h2>
+          <p class="card-description">Select timeframe and dataset to view</p>
+        </div>
+        <div class="card-content">
+          <!-- Filter Bar: 6 Fields -->
+          <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+            <!-- Start Date -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium leading-none">Start Date</label>
+              <input type="date" id="startDate" class="input-shadcn">
+            </div>
+            
+            <!-- Start Hour -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium leading-none">Start Hour</label>
+              <select id="startHour" class="select-shadcn">
+                <option value="all">All</option>
+                <!-- Options (0‑23) added by JS -->
+              </select>
+            </div>
+            
+            <!-- End Date -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium leading-none">End Date</label>
+              <input type="date" id="endDate" class="input-shadcn">
+            </div>
+            
+            <!-- End Hour -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium leading-none">End Hour</label>
+              <select id="endHour" class="select-shadcn">
+                <option value="all">All</option>
+                <!-- Options (0‑23) added by JS -->
+              </select>
+            </div>
+            
+            <!-- Interval -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium leading-none">Interval</label>
+              <select id="interval" class="select-shadcn">
+                <option value="10min">10 min</option>
+                <option value="30min">30 min</option>
+                <option value="1h">1 hour</option>
+              </select>
+            </div>
+            
+            <!-- Display Options -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium leading-none">Display Options</label>
+              <select id="displayOptions" class="select-shadcn">
+                <option value="all">All Data</option>
+                <option value="filtered">Filtered Data</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer space-x-2">
+          <!-- Apply Filter Button -->
+          <button id="applyBtn" class="btn-primary">
+            <span class="material-icons text-sm mr-1">filter_alt</span>
+            Apply Filter
+          </button>
+          
+          <!-- Next Button -->
+          <button id="nextBtn" class="btn-secondary">
+            <span class="material-icons text-sm mr-1">arrow_forward</span>
+            Next
+          </button>
+        </div>
+      </div>
+      
+      <!-- Visualization Card -->
+      <div class="card-shadcn animate__animated animate__fadeIn">
+        <div class="card-header">
+          <h2 id="chartTitle" class="card-title">Heatmaps</h2>
+          <p class="card-description">Visualizing different datasets across New York City</p>
+        </div>
+        <div class="card-content p-0 sm:p-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <div class="mb-2">
+                <select id="dataset1" class="select-shadcn">
+                  {% for key in dataset_keys %}
+                  <option value="{{ key }}">{{ key|title }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div id="heatmap1" class="border border-input rounded-md h-[400px] md:h-[500px]"></div>
+            </div>
+            <div>
+              <div class="mb-2">
+                <select id="dataset2" class="select-shadcn">
+                  {% for key in dataset_keys %}
+                  <option value="{{ key }}">{{ key|title }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div id="heatmap2" class="border border-input rounded-md h-[400px] md:h-[500px]"></div>
+            </div>
+            <div>
+              <div class="mb-2">
+                <select id="dataset3" class="select-shadcn">
+                  {% for key in dataset_keys %}
+                  <option value="{{ key }}">{{ key|title }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div id="heatmap3" class="border border-input rounded-md h-[400px] md:h-[500px]"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Include app.js -->
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  
+  <!-- Dark mode toggle script -->
+  <script>
+    // Dark mode toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    const toggleIcon = themeToggle.querySelector('.material-icons');
+    
+    // Check for saved theme preference or prefer-color-scheme
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    // Apply theme based on saved preference or system preference
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+      html.classList.add('dark');
+      toggleIcon.textContent = 'light_mode';
+    }
+    
+    // Toggle theme on button click
+    themeToggle.addEventListener('click', () => {
+      html.classList.toggle('dark');
+      
+      // Update icon
+      if (html.classList.contains('dark')) {
+        toggleIcon.textContent = 'light_mode';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        toggleIcon.textContent = 'dark_mode';
+        localStorage.setItem('theme', 'light');
+      }
+    });
+  </script>
 </body>
 </html>
